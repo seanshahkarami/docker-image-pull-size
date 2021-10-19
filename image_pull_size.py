@@ -28,14 +28,11 @@ def get_manifest_layers(ref, arch):
     ref = infer_ref(ref)
     results = inspect_ref(ref)
     for m in results["manifests"]:
-        # check os too
+        # TODO check os too
         if m["platform"]["architecture"] != arch:
             continue
         ref = f"{ref}@{m['digest']}"
-        # include this somehow
-        # cache_size += m["size"]
-        for layer in inspect_ref(ref)["layers"]:
-            yield layer
+        yield from inspect_ref(ref)["layers"]
 
 
 def main():
