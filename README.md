@@ -2,6 +2,8 @@
 
 This tool helps you estimate how much data will be used when pulling a sequence of images and caching layers.
 
+_This is a super early prototype and mostly for my own use!_
+
 ## Usage
 
 ```sh
