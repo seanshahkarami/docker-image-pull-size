@@ -48,10 +48,12 @@ def main():
     cache = {}
 
     for image in args.images:
+        # add all image layers to the cache, as needed
         for layer in get_manifest_layers(image, args.arch):
             digest = layer["digest"]
             if digest not in cache:
                 cache[digest] = layer
+        # update history
         history.append({
             "name": image,
             "size": sum(l["size"]/1024**2 for l in cache.values()),
