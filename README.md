@@ -10,3 +10,5 @@ _This is a super early prototype and mostly for my own use!_
 # python3 image_pull_size.py image1 image2 ...
 python3 image_pull_size.py python:3.8 python:3.7 my/app
 ```
+
+Sizes are shown in MBs.
