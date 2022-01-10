@@ -4,7 +4,7 @@ import json
 import pandas as pd
 
 
-def infer_ref(s):
+def expand_ref(s):
     parts = s.split("/")
     if ":" not in parts[-1]:
         parts[-1] = f"{parts[-1]}:latest"
@@ -18,15 +18,15 @@ def infer_ref(s):
 
 
 def inspect_ref(ref):
-    ref = infer_ref(ref)
-    body = subprocess.check_output(
-        ["docker", "buildx", "imagetools", "inspect", "--raw", ref]
+    return json.loads(
+        subprocess.check_output(
+            ["docker", "buildx", "imagetools", "inspect", "--raw", ref]
+        )
     )
-    return json.loads(body)
 
 
 def get_layers(ref, arch):
-    ref = infer_ref(ref)
+    ref = expand_ref(ref)
     resp = inspect_ref(ref)
     media_type = resp["mediaType"]
 
@@ -34,8 +34,8 @@ def get_layers(ref, arch):
         for m in resp["manifests"]:
             if m["platform"]["architecture"] != arch:
                 continue
-            ref = f"{ref}@{m['digest']}"
-            yield from get_layers(ref, arch)
+            digest_ref = f"{ref}@{m['digest']}"
+            yield from get_layers(digest_ref, arch)
     elif media_type == "application/vnd.docker.distribution.manifest.v2+json":
         yield from inspect_ref(ref)["layers"]
     else:
