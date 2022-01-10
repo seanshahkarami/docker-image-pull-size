@@ -53,7 +53,7 @@ def main():
     args = parser.parse_args()
 
     history = [
-        {"name": "scratch", "size": 0, "layers": 0},
+        {"name": "scratch", "size_total": 0, "layers_total": 0},
     ]
 
     cache = {}
@@ -68,18 +68,23 @@ def main():
         history.append(
             {
                 "name": image,
-                "size": sum(l["size"] for l in cache.values()),
-                "layers": len(cache),
+                "size_total": sum(l["size"] for l in cache.values()),
+                "layers_total": len(cache),
             }
         )
 
     df = pd.DataFrame(history)
-    df["size_delta"] = df["size"].diff()
-    df["layers_delta"] = df["layers"].diff()
+    df["size_delta"] = df["size_total"].diff()
+    df["layers_delta"] = df["layers_total"].diff()
     df = df.fillna(0)
-    df["size"] = df["size"].apply(mbstr)
+
+    # format data
+    df["size_total"] = df["size_total"].apply(mbstr)
     df["size_delta"] = df["size_delta"].apply(mbstr)
-    print(df)
+    df["layers_delta"] = df["layers_delta"].apply(int)
+
+    # print results
+    print(df[["name", "size_total", "size_delta", "layers_total", "layers_delta"]])
 
 
 if __name__ == "__main__":
