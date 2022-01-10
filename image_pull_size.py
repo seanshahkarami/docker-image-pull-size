@@ -80,13 +80,16 @@ def main():
         )
 
     df = pd.DataFrame(history)
+    df["size_total_pct"] = df["size_total"] / df["size_total"].iloc[-1]
+
     df["size_delta"] = df["size_total"].diff()
     df["layers_delta"] = df["layers_total"].diff()
+    df["size_delta_pct"] = df["size_total_pct"].diff()
     df = df.fillna(0)
-    df["size_delta_pct"] = df["size_delta"] / df["size_total"].iloc[-1]
 
     # format data
     df["size_total"] = df["size_total"].apply(mbstr)
+    df["size_total_pct"] = df["size_total_pct"].apply(pct)
     df["size_delta"] = df["size_delta"].apply(mbstr)
     df["size_delta_pct"] = df["size_delta_pct"].apply(pct)
     df["layers_delta"] = df["layers_delta"].apply(int)
@@ -95,6 +98,7 @@ def main():
     fields = [
         "name",
         "size_total",
+        "size_total_pct",
         "size_delta",
         "size_delta_pct",
         "layers_total",
