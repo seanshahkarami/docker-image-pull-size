@@ -42,8 +42,12 @@ def get_layers(ref, arch):
         raise TypeError(f"unknown mediaType {media_type!r}")
 
 
-def mbstr(r):
-    return f"{r/1024**2:0.2f} MB"
+def mbstr(x):
+    return f"{x/1024**2:0.2f} MB"
+
+
+def pct(x):
+    return f"{x:0.2%}"
 
 
 def main():
@@ -79,14 +83,23 @@ def main():
     df["size_delta"] = df["size_total"].diff()
     df["layers_delta"] = df["layers_total"].diff()
     df = df.fillna(0)
+    df["size_delta_pct"] = df["size_delta"] / df["size_total"].iloc[-1]
 
     # format data
     df["size_total"] = df["size_total"].apply(mbstr)
     df["size_delta"] = df["size_delta"].apply(mbstr)
+    df["size_delta_pct"] = df["size_delta_pct"].apply(pct)
     df["layers_delta"] = df["layers_delta"].apply(int)
 
     # print results
-    fields = ["name", "size_total", "size_delta", "layers_total", "layers_delta"]
+    fields = [
+        "name",
+        "size_total",
+        "size_delta",
+        "size_delta_pct",
+        "layers_total",
+        "layers_delta",
+    ]
     print(df[fields].to_string())
 
 
