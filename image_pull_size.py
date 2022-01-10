@@ -48,7 +48,9 @@ def mbstr(r):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--arch", default="amd64", help="arch to check")
+    parser.add_argument(
+        "--arch", default="amd64", choices=["amd64", "arm64"], help="arch to use"
+    )
     parser.add_argument("images", nargs="+", help="list of calendars")
     args = parser.parse_args()
 

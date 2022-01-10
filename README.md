@@ -11,6 +11,8 @@ _This is a super early prototype and mostly for my own use!_
 python3 image_pull_size.py python:3.8 python:3.7 my/app
 ```
 
+_The arch (amd64, arm64) can be provided using the `--arch` flag._
+
 The output will contain a trace of the total size and number of layers accumulated by the provided sequence of pulls.
 
 * `name`. Name of image pulled at this step.
