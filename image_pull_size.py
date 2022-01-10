@@ -86,7 +86,8 @@ def main():
     df["layers_delta"] = df["layers_delta"].apply(int)
 
     # print results
-    print(df[["name", "size_total", "size_delta", "layers_total", "layers_delta"]])
+    fields = ["name", "size_total", "size_delta", "layers_total", "layers_delta"]
+    print(df[fields].to_string())
 
 
 if __name__ == "__main__":
