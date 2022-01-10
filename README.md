@@ -17,6 +17,8 @@ The output will contain a trace of the total size and number of layers accumulat
 
 * `name`. Name of image pulled at this step.
 * `size_total`. Total _accumulated_ size.
+* `size_total_pct`. Total _accumulated_ size as percentage of final accumulated size.
 * `size_delta`. Size of _new_ layers in this pull.
+* `size_delta_pct`. Size of _new_ layers in this pull as percentage of final accumulated size.
 * `layers_total`. Total _accumulated_ number of layers.
 * `layers_delta`. _New_ layers in this pull.
