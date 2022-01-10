@@ -19,20 +19,31 @@ def infer_ref(s):
 
 def inspect_ref(ref):
     ref = infer_ref(ref)
-    output = subprocess.check_output(["docker", "buildx", "imagetools", "inspect", "--raw", ref])
-    results = json.loads(output)
-    return results
+    body = subprocess.check_output(
+        ["docker", "buildx", "imagetools", "inspect", "--raw", ref]
+    )
+    return json.loads(body)
 
 
-def get_manifest_layers(ref, arch):
+def get_layers(ref, arch):
     ref = infer_ref(ref)
-    results = inspect_ref(ref)
-    for m in results["manifests"]:
-        # TODO check os too
-        if m["platform"]["architecture"] != arch:
-            continue
-        ref = f"{ref}@{m['digest']}"
+    resp = inspect_ref(ref)
+    media_type = resp["mediaType"]
+
+    if media_type == "application/vnd.docker.distribution.manifest.list.v2+json":
+        for m in resp["manifests"]:
+            if m["platform"]["architecture"] != arch:
+                continue
+            ref = f"{ref}@{m['digest']}"
+            yield from get_layers(ref, arch)
+    elif media_type == "application/vnd.docker.distribution.manifest.v2+json":
         yield from inspect_ref(ref)["layers"]
+    else:
+        raise TypeError(f"unknown mediaType {media_type!r}")
+
+
+def mbstr(r):
+    return f"{r/1024**2:0.2f} MB"
 
 
 def main():
@@ -49,21 +60,26 @@ def main():
 
     for image in args.images:
         # add all image layers to the cache, as needed
-        for layer in get_manifest_layers(image, args.arch):
+        for layer in get_layers(image, args.arch):
             digest = layer["digest"]
             if digest not in cache:
                 cache[digest] = layer
         # update history
-        history.append({
-            "name": image,
-            "size": sum(l["size"]/1024**2 for l in cache.values()),
-            "layers": len(cache),
-        })
+        history.append(
+            {
+                "name": image,
+                "size": sum(l["size"] for l in cache.values()),
+                "layers": len(cache),
+            }
+        )
 
     df = pd.DataFrame(history)
     df["size_delta"] = df["size"].diff()
     df["layers_delta"] = df["layers"].diff()
-    print(df.fillna(0))
+    df = df.fillna(0)
+    df["size"] = df["size"].apply(mbstr)
+    df["size_delta"] = df["size_delta"].apply(mbstr)
+    print(df)
 
 
 if __name__ == "__main__":
