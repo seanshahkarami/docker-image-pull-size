@@ -50,13 +50,27 @@ def pct(x):
     return f"{x:0.2%}"
 
 
+def default_arch():
+    import platform
+    machine = platform.machine()
+    if machine == "x86_64":
+        return "amd64"
+    if machine == "aarch64":
+        return "arm64"
+    return "amd64"
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--arch", default="amd64", choices=["amd64", "arm64"], help="arch to use"
+        "--arch", choices=["amd64", "arm64"], help="arch to use"
     )
     parser.add_argument("images", nargs="+", help="list of calendars")
     args = parser.parse_args()
+
+    if args.arch is None:
+        args.arch = default_arch()
+        print(f"detected arch {args.arch}")
 
     history = [
         {"name": "scratch", "size_total": 0, "layers_total": 0},
@@ -104,6 +118,8 @@ def main():
         "layers_total",
         "layers_delta",
     ]
+
+    print(f"image layer summary (arch: {args.arch})")
     print(df[fields].to_string())
 
 
