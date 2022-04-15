@@ -70,7 +70,7 @@ def main():
 
     if args.arch is None:
         args.arch = default_arch()
-        print(f"detected arch {args.arch}")
+        print(f"using detected arch {args.arch}")
 
     history = [
         {"name": "scratch", "size_total": 0, "layers_total": 0},
